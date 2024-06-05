@@ -2,26 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
 use App\Models\Todo;
+use App\Services\TodoSelectorService;
 use Illuminate\Http\Request;
 
 class TodoController extends Controller
 {
-    public function index(Request $request)
+    private Todo $todoModel;
+
+    public function __construct(Todo $todoModel)
     {
-        if ($request->status === 'completed') {
-            $todos = Todo::where('completed', '=', 1)->with('category')->get();
-        } else if ($request->status === 'uncompleted') {
-            $todos = Todo::where('completed', '=', 0)->with('category')->get();
-        } else {
-            $todos = Todo::with('category')->get();
+        $this->todoModel = $todoModel;
+    }
+
+    public function listTodos(Request $request, TodoSelectorService $todoSelectorService)
+    {
+        $status = null;
+        $category = null;
+
+        if (isset($request->status)) {
+            $status = $request->status;
+            }
+
+        if (isset($request->category) && in_array($request->category, $todoSelectorService->categories)) {
+            $category = $request->category;
         }
+
+        $selectedTodos = $todoSelectorService->selectTodos($status, $category);
 
         return response()->json([
             'message' => 'Todos retrieved successfully',
             'success' => true,
-            'data' => $todos
+            'data' => $selectedTodos
         ]);
     }
 
@@ -42,7 +54,7 @@ class TodoController extends Controller
 
     public function delete(int $id)
     {
-        $todo = Todo::find($id);
+        $todo = $this->todoModel->find($id);
         $todo->delete();
 
         return response()->json([
@@ -53,7 +65,7 @@ class TodoController extends Controller
 
     public function complete(int $id, Request $request)
     {
-        $todo = Todo::find($id);
+        $todo = $this->todoModel->find($id);
         $todo->completed = $request->completed;
         $todo->save();
 

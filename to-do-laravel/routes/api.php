@@ -8,7 +8,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::get('/todos', [TodoController::class, 'index']);
+Route::get('/todos', [TodoController::class, 'listTodos']);
 
 Route::post('/todos', [TodoController::class, 'create']);
 
