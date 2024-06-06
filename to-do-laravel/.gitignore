@@ -1,3 +1,4 @@
+../.DS_Store
 /.phpunit.cache
 /node_modules
 /public/build
@@ -18,3 +19,5 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+
