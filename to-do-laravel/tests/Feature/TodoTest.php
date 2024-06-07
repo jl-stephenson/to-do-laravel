@@ -32,7 +32,7 @@ class TodoTest extends TestCase
             });
     }
 
-    public function test_createTodo(): void
+    public function test_createTodo_success(): void
     {
         $testData = ['name' => 'Test task', 'completed' => false, 'category_id' => 1];
 
@@ -45,7 +45,7 @@ class TodoTest extends TestCase
         $this->assertDatabaseHas('todos', $testData);
     }
 
-    public function test_createTodo_failure(): void
+    public function test_createTodo_failureOutOfRange(): void
     {
         $testData = ['name' => 'Test task', 'completed' => false, 'category_id' => 8];
 
@@ -56,7 +56,29 @@ class TodoTest extends TestCase
             });
     }
 
-    public function test_updateTodo(): void
+    public function test_createTodo_failureRequired(): void
+    {
+        $testData = ['name' => 'Test task', 'completed' => false];
+
+        $response = $this->postJson('/api/todos', $testData);
+        $response->assertStatus(422)
+            ->assertJson(function(AssertableJson $json) {
+                $json->hasAll(['message', 'errors']);
+            });
+    }
+
+    public function test_createTodo_malformed(): void
+    {
+        $testData = ['name' => 'Test task', 'completed' => 'no', 'category_id' => 2];
+
+        $response = $this->postJson('/api/todos', $testData);
+        $response->assertStatus(422)
+            ->assertJson(function(AssertableJson $json) {
+                $json->hasAll(['message', 'errors']);
+            });
+    }
+
+    public function test_updateTodo_success(): void
     {
         Todo::factory()->create();
 
@@ -69,7 +91,45 @@ class TodoTest extends TestCase
             });
 
         $this->assertDatabaseHas('todos', $testData);
+    }
 
+    public function test_updateTodo_failureOutOfRange(): void
+    {
+        Todo::factory()->create();
+
+        $testData = ['name' => 'Test task', 'completed' => false, 'category_id' => 8];
+
+        $response = $this->putJson('/api/todos/1', $testData);
+        $response->assertStatus(422)
+            ->assertJson(function(AssertableJson $json) {
+                $json->hasAll(['message', 'errors']);
+            });
+    }
+
+    public function test_updateTodo_failureRequired(): void
+    {
+        Todo::factory()->create();
+
+        $testData = ['name' => 'Test task', 'completed' => false];
+
+        $response = $this->putJson('/api/todos/1', $testData);
+        $response->assertStatus(422)
+            ->assertJson(function(AssertableJson $json) {
+                $json->hasAll(['message', 'errors']);
+            });
+    }
+
+    public function test_updateTodo_malformed(): void
+    {
+        Todo::factory()->create();
+
+        $testData = ['name' => 'Test task', 'completed' => 'no', 'category_id' => 2];
+
+        $response = $this->putJson('/api/todos/1', $testData);
+        $response->assertStatus(422)
+            ->assertJson(function(AssertableJson $json) {
+                $json->hasAll(['message', 'errors']);
+            });
     }
 
     public function test_deleteTodo(): void
