@@ -14,4 +14,4 @@ Route::post('/todos', [TodoController::class, 'create']);
 
 Route::delete('/todos/{id}', [TodoController::class, 'delete']);
 
-Route::put('/todos{id}', [TodoController::class, 'complete']);
+Route::put('/todos/{id}', [TodoController::class, 'complete']);

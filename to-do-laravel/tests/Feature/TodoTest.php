@@ -45,4 +45,43 @@ class TodoTest extends TestCase
         $this->assertDatabaseHas('todos', $testData);
     }
 
+    public function test_createTodo_failure(): void
+    {
+        $testData = ['name' => 'Test task', 'completed' => false, 'category_id' => 8];
+
+        $response = $this->postJson('/api/todos', $testData);
+        $response->assertStatus(422)
+            ->assertJson(function(AssertableJson $json) {
+                $json->hasAll(['message', 'errors']);
+            });
+    }
+
+    public function test_updateTodo(): void
+    {
+        Todo::factory()->create();
+
+        $testData = ['name' => 'Test task', 'completed' => false, 'category_id' => 1];
+
+        $response = $this->putJson('/api/todos/1', $testData);
+        $response->assertStatus(200)
+            ->assertJson(function(AssertableJson $json) {
+                $json->hasAll(['message', 'success']);
+            });
+
+        $this->assertDatabaseHas('todos', $testData);
+
+    }
+
+    public function test_deleteTodo(): void
+    {
+        Todo::factory()->create();
+
+        $response = $this->delete('api/todos/1');
+        $response->assertStatus(200)
+            ->assertJson(function(AssertableJson $json) {
+                $json->hasAll(['message', 'success']);
+            });
+
+        $this->assertDatabaseEmpty('todos');
+    }
 }

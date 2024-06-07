@@ -39,7 +39,11 @@ class TodoController extends Controller
 
     public function create(Request $request)
     {
-
+    $request->validate([
+        'name' => 'required|string|max:100',
+        'completed' => 'required|boolean',
+        'category_id' => 'required|integer|min:1|max:2'
+    ]);
 
         $todo = new Todo;
         $todo->name = $request->name;
@@ -67,8 +71,16 @@ class TodoController extends Controller
 
     public function complete(int $id, Request $request)
     {
+        $request->validate([
+            'name' => 'required|string|max:100',
+            'completed' => 'required|boolean',
+            'category_id' => 'required|integer|min:1|max:2'
+        ]);
+
         $todo = $this->todoModel->find($id);
+        $todo->name = $request->name;
         $todo->completed = $request->completed;
+        $todo->category_id = $request->category_id;
         $todo->save();
 
         return response()->json([
