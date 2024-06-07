@@ -10,6 +10,8 @@ class Category extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     public function todos(): HasMany
 {
     return $this->hasMany(Todo::class);

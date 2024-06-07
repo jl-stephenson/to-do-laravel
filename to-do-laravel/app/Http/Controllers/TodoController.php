@@ -39,6 +39,8 @@ class TodoController extends Controller
 
     public function create(Request $request)
     {
+
+
         $todo = new Todo;
         $todo->name = $request->name;
         $todo->completed = $request->completed;
