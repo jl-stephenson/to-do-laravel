@@ -17,7 +17,7 @@ class TodoSelectorService
         $this->todoModel = $todoModel;
     }
 
-    public function selectTodos($status, $category): Collection
+    public function selectTodos(?int $status,?string $category): Collection
     {
 
         $todos = $this->todoModel->with('category');

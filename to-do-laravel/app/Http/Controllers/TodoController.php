@@ -17,12 +17,9 @@ class TodoController extends Controller
 
     public function listTodos(Request $request, TodoSelectorService $todoSelectorService)
     {
-        $status = null;
-        $category = null;
+        $status = $request->completed ?? null;
 
-        if (isset($request->status)) {
-            $status = $request->status;
-            }
+        $category = null;
 
         if (isset($request->category) && in_array($request->category, $todoSelectorService->categories)) {
             $category = $request->category;
@@ -41,35 +38,56 @@ class TodoController extends Controller
     {
     $request->validate([
         'name' => 'required|string|max:100',
-        'completed' => 'required|boolean',
         'category_id' => 'required|integer|min:1|max:2'
     ]);
 
-        $todo = new Todo;
+        $todo = new Todo();
         $todo->name = $request->name;
-        $todo->completed = $request->completed;
+        $todo->completed = false;
         $todo->category_id = $request->category_id;
 
-        $todo->save();
+        $result = $todo->save();
 
-        return response()->json([
-            'message' => 'Todo added to the DB',
-            'success' => true
-        ]);
+        if ($result) {
+            return response()->json([
+                'message' => 'Todo added to the DB',
+                'success' => true
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Todo couldn\'t be added to DB',
+                'success' => false
+            ], 500);
+        }
     }
 
     public function delete(int $id)
     {
         $todo = $this->todoModel->find($id);
-        $todo->delete();
 
-        return response()->json([
-            'message' => 'Todo deleted from DB',
-            'success' => true
-        ]);
+        if (is_null($todo)) {
+            return response()->json([
+                'message' => 'Todo doesn\'t exist!',
+                'success' => false
+        ], 400);
+        }
+
+        $result = $todo->delete();
+
+        if ($result) {
+            return response()->json([
+                'message' => 'Todo deleted from DB',
+                'success' => true
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Todo couldn\'t be deleted from DB',
+                'success' => false
+            ], 500);
+        }
     }
 
-    public function complete(int $id, Request $request)
+    public function edit(int $id, Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:100',
@@ -81,11 +99,18 @@ class TodoController extends Controller
         $todo->name = $request->name;
         $todo->completed = $request->completed;
         $todo->category_id = $request->category_id;
-        $todo->save();
+        $result = $todo->save();
 
-        return response()->json([
-            'message' => 'Todo marked as completed',
-            'success' => true
-        ]);
+        if ($result) {
+            return response()->json([
+                'message' => 'Todo marked as completed',
+                'success' => true
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Todo couldn\'t be marked as completed',
+                'success' => false
+            ], 500);
+        }
     }
 }

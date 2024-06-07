@@ -13,7 +13,7 @@ class Category extends Model
     public $timestamps = false;
 
     public function todos(): HasMany
-{
+    {
     return $this->hasMany(Todo::class);
-}
+    }
 }

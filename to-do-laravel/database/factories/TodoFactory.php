@@ -21,7 +21,6 @@ class TodoFactory extends Factory
             'name' => $this->faker->name(),
             'completed' => $this->faker->numberBetween(0, 1),
             'created_at' => $this->faker->unixTime(),
-            'updated_at' => $this->faker->unixTime(),
             'category_id' => Category::factory()
 
         ];
